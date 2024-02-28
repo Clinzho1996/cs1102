@@ -68,7 +68,7 @@ public class StudentRecordManagementSystem {
             switch (choice) {
                 case 1:
                     System.out.print("Enter student name: ");
-                    String name = scanner.next();
+                    String name = scanner.nextLine();
 
                     double age;
                     while (true) {
@@ -101,7 +101,7 @@ public class StudentRecordManagementSystem {
                     scanner.nextLine(); // Consume the newline character
 
                     System.out.print("Enter new student name: ");
-                    String updateName = scanner.next();
+                    String updateName = scanner.nextLine();
 
                     double updateAge;
                     while (true) {
