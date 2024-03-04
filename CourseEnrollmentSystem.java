@@ -9,6 +9,9 @@ public class CourseEnrollmentSystem {
         Scanner scanner = new Scanner(System.in);
         CourseManagement courseManagement = new CourseManagement();
 
+        // Declaration of courseCode outside the loop
+        String courseCode;
+
         // Administrator Interface
         int choice;
         do {
@@ -26,8 +29,9 @@ public class CourseEnrollmentSystem {
                 case 1:
                     System.out.println("\nAdd New Course:");
                     System.out.print("Enter course code: ");
-                    String courseCode = scanner.nextLine();
+                    courseCode = scanner.next(); // Use next() instead of nextLine()
                     System.out.print("Enter course name: ");
+                    scanner.nextLine(); // Consume newline
                     String courseName = scanner.nextLine();
                     System.out.print("Enter maximum capacity: ");
                     int maxCapacity = scanner.nextInt();
@@ -38,6 +42,7 @@ public class CourseEnrollmentSystem {
                 case 2:
                     System.out.println("\nEnroll Student:");
                     System.out.print("Enter student name: ");
+                    scanner.nextLine(); // Consume newline
                     String studentName = scanner.nextLine();
                     System.out.print("Enter student ID: ");
                     int studentID = scanner.nextInt();
@@ -207,7 +212,7 @@ class CourseManagement {
     public void enrollStudent(String name, int studentID, String courseCode) {
         Course course = findCourse(courseCode);
         if (course != null) {
-            Student student = new Student(name, studentID);
+            Student student = new Student(name, studentID); // Corrected instantiation of Student
             course.enrollStudent();
             student.enrollInCourse(course);
             students.add(student);
