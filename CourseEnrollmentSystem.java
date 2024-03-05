@@ -42,7 +42,6 @@ public class CourseEnrollmentSystem {
                 case 2:
                     System.out.println("\nEnroll Student:");
                     System.out.print("Enter student name: ");
-                    scanner.nextLine(); // Consume newline
                     String studentName = scanner.nextLine();
                     System.out.print("Enter student ID: ");
                     int studentID = scanner.nextInt();
@@ -134,7 +133,7 @@ class Student {
         for (Map.Entry<Course, Integer> entry : grades.entrySet()) {
             Course course = entry.getKey();
             int grade = entry.getValue();
-            int credits = course.getCredits(); // Adjust this based on your actual data structure
+            int credits = course.getCredits();
 
             totalCredits += credits;
             weightedSum += grade * credits;
@@ -212,7 +211,7 @@ class CourseManagement {
     public void enrollStudent(String name, int studentID, String courseCode) {
         Course course = findCourse(courseCode);
         if (course != null) {
-            Student student = new Student(name, studentID); // Corrected instantiation of Student
+            Student student = new Student(name, studentID);
             course.enrollStudent();
             student.enrollInCourse(course);
             students.add(student);
