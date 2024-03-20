@@ -1,12 +1,12 @@
+import java.util.ArrayList;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.ArrayList;
 
 public class StudentManagementSystemGUI extends JFrame implements ActionListener {
-    private JTextField idField, nameField, courseIdField, gradeField;
-    private JButton addButton, updateButton, viewButton, enrollButton, gradeButton;
+    private JTextField idField, nameField, courseIdField, gradeField, newCourseIdField, newCourseNameField;
+    private JButton addButton, updateButton, viewButton, enrollButton, gradeButton, addCourseButton;
     private JTextArea displayArea;
 
     private ArrayList<Student> students;
@@ -22,12 +22,15 @@ public class StudentManagementSystemGUI extends JFrame implements ActionListener
         nameField = new JTextField(20);
         courseIdField = new JTextField(10);
         gradeField = new JTextField(5);
+        newCourseIdField = new JTextField(10);
+        newCourseNameField = new JTextField(20);
 
         addButton = new JButton("Add Student");
         updateButton = new JButton("Update Student");
         viewButton = new JButton("View Students");
         enrollButton = new JButton("Enroll Student");
         gradeButton = new JButton("Assign Grade");
+        addCourseButton = new JButton("Add Course");
 
         displayArea = new JTextArea(15, 50);
         displayArea.setEditable(false);
@@ -37,6 +40,7 @@ public class StudentManagementSystemGUI extends JFrame implements ActionListener
         viewButton.addActionListener(this);
         enrollButton.addActionListener(this);
         gradeButton.addActionListener(this);
+        addCourseButton.addActionListener(this);
 
         add(new JLabel("ID: "));
         add(idField);
@@ -51,6 +55,11 @@ public class StudentManagementSystemGUI extends JFrame implements ActionListener
         add(new JLabel("Grade: "));
         add(gradeField);
         add(gradeButton);
+        add(new JLabel("New Course ID: "));
+        add(newCourseIdField);
+        add(new JLabel("New Course Name: "));
+        add(newCourseNameField);
+        add(addCourseButton);
         add(new JScrollPane(displayArea));
 
         students = new ArrayList<>();
@@ -62,55 +71,93 @@ public class StudentManagementSystemGUI extends JFrame implements ActionListener
         if (e.getSource() == addButton) {
             String id = idField.getText();
             String name = nameField.getText();
-            students.add(new Student(Integer.parseInt(id), name));
-            displayArea.append("Added Student: " + name + " (ID: " + id + ")\n");
-        } else if (e.getSource() == updateButton) {
-            String id = idField.getText();
-            String newName = nameField.getText();
-            for (Student student : students) {
-                if (student.getId().equals(id)) {
-                    student.setName(newName);
-                    displayArea.append("Updated Student: " + student.getName() + " (ID: " + student.getId() + ")\n");
-                    break;
-                }
-            }
-        } else if (e.getSource() == viewButton) {
-            displayArea.setText("");
-            for (Student student : students) {
-                displayArea.append(student.toString() + "\n");
+            if (!id.isEmpty() && !name.isEmpty()) {
+                students.add(new Student(Integer.parseInt(id), name));
+                displayArea.append("Added Student: " + name + " (ID: " + id + ")\n");
+            } else {
+                displayArea.append("Please enter ID and Name.\n");
             }
         } else if (e.getSource() == enrollButton) {
             String studentId = idField.getText();
             String courseId = courseIdField.getText();
-            for (Student student : students) {
-                if (student.getId().equals(studentId)) {
-                    for (Course course : courses) {
-                        if (course.getId().equals(courseId)) {
-                            student.enroll(course);
-                            displayArea.append(
-                                    "Enrolled Student " + student.getName() + " in Course " + course.getName() + "\n");
-                            break;
+            if (!studentId.isEmpty() && !courseId.isEmpty()) {
+                boolean studentFound = false;
+                boolean courseFound = false;
+                for (Student student : students) {
+                    if (Integer.toString(student.getId()).equals(studentId)) {
+                        studentFound = true;
+                        for (Course course : courses) {
+                            if (Integer.toString(course.getId()).equals(courseId)) {
+                                courseFound = true;
+                                student.enroll(course);
+                                displayArea.append(
+                                        "Enrolled Student " + student.getName() + " in Course " + course.getName()
+                                                + "\n");
+                                break;
+                            }
                         }
+                        if (!courseFound) {
+                            displayArea.append("Course with ID " + courseId + " not found.\n");
+                        }
+                        break;
                     }
-                    break;
                 }
+                if (!studentFound) {
+                    displayArea.append("Student with ID " + studentId + " not found.\n");
+                }
+            } else {
+                displayArea.append("Please enter Student ID and Course ID.\n");
             }
         } else if (e.getSource() == gradeButton) {
             String studentId = idField.getText();
             String courseId = courseIdField.getText();
-            double grade = Double.parseDouble(gradeField.getText());
-            for (Student student : students) {
-                if (student.getId().equals(studentId)) {
-                    for (Course course : student.getCourses()) {
-                        if (course.getId().equals(courseId)) {
-                            student.setGrade(course, grade);
-                            displayArea.append("Assigned Grade " + grade + " to Student " + student.getName()
-                                    + " for Course " + course.getName() + "\n");
+            String gradeText = gradeField.getText();
+            if (!studentId.isEmpty() && !courseId.isEmpty() && !gradeText.isEmpty()) {
+                try {
+                    double grade = Double.parseDouble(gradeText);
+                    boolean studentFound = false;
+                    boolean courseFound = false;
+                    for (Student student : students) {
+                        if (Integer.toString(student.getId()).equals(studentId)) {
+                            studentFound = true;
+                            for (Course course : student.getCourses()) {
+                                if (Integer.toString(course.getId()).equals(courseId)) {
+                                    courseFound = true;
+                                    student.setGrade(course, grade);
+                                    displayArea.append("Assigned Grade " + grade + " to Student " + student.getName()
+                                            + " for Course " + course.getName() + "\n");
+                                    break;
+                                }
+                            }
+                            if (!courseFound) {
+                                displayArea.append(
+                                        "Student " + student.getName() + " not enrolled in Course with ID " + courseId
+                                                + "\n");
+                            }
                             break;
                         }
                     }
-                    break;
+                    if (!studentFound) {
+                        displayArea.append("Student with ID " + studentId + " not found.\n");
+                    }
+                } catch (NumberFormatException ex) {
+                    displayArea.append("Please enter a valid grade.\n");
                 }
+            } else {
+                displayArea.append("Please enter Student ID, Course ID, and Grade.\n");
+            }
+        } else if (e.getSource() == addCourseButton) {
+            String courseId = newCourseIdField.getText();
+            String courseName = newCourseNameField.getText();
+            if (!courseId.isEmpty() && !courseName.isEmpty()) {
+                courses.add(new Course(Integer.parseInt(courseId), courseName));
+                displayArea.append("Added Course: " + courseName + " (ID: " + courseId + ")\n");
+            } else {
+                displayArea.append("Please enter Course ID and Name.\n");
+            }
+        } else if (e.getSource() == viewButton) {
+            for (Student student : students) {
+                displayArea.append(student.toString() + "\n");
             }
         }
     }
@@ -134,26 +181,23 @@ class Student {
         this.grades = new ArrayList<>();
     }
 
-    // Getter for id
     public int getId() {
         return id;
     }
 
-    // Setter for name
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    // Getter for name
     public String getName() {
         return name;
     }
 
-    // Getters and setters
+    public void setName(String name) {
+        this.name = name;
+    }
 
     public void enroll(Course course) {
-        courses.add(course);
-        grades.add(0.0); // Initialize grade as 0.0
+        if (!courses.contains(course)) {
+            courses.add(course);
+            grades.add(0.0); // Initialize grade as 0.0
+        }
     }
 
     public void setGrade(Course course, double grade) {
@@ -167,13 +211,24 @@ class Student {
         return courses;
     }
 
+    public ArrayList<Double> getGrades() {
+        return grades;
+    }
+
     @Override
     public String toString() {
-        return "Student{" +
-                "id='" + id + '\'' +
-                ", name='" + name + '\'' +
-                ", courses=" + courses +
-                '}';
+        StringBuilder sb = new StringBuilder();
+        sb.append("Student{id=").append(id);
+        sb.append(", name='").append(name).append('\'');
+        sb.append(", courses=[");
+        for (int i = 0; i < courses.size(); i++) {
+            sb.append(courses.get(i).getName());
+            if (i < courses.size() - 1) {
+                sb.append(", ");
+            }
+        }
+        sb.append("]}");
+        return sb.toString();
     }
 }
 
@@ -186,27 +241,22 @@ class Course {
         this.name = name;
     }
 
-    // Getter for id
     public int getId() {
         return id;
     }
 
-    // Setter for name
     public void setName(String name) {
         this.name = name;
     }
 
-    // Getter for name
     public String getName() {
         return name;
     }
 
-    // Getters and setters
-
     @Override
     public String toString() {
         return "Course{" +
-                "id='" + id + '\'' +
+                "id=" + id +
                 ", name='" + name + '\'' +
                 '}';
     }
